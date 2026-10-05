@@ -23,19 +23,54 @@ interface Props {
   loading?: boolean
 }
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const PHONE_RE = /^\+?[1-9]\d{7,14}$/
+const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
 function validate(values: FormValues): FormErrors {
   const errors: FormErrors = {}
-  if (!values.fullName.trim() || values.fullName.trim().length < 2)
+
+  // 1. Full Name Validation
+  const name = values.fullName.trim()
+  if (!name) {
+    errors.fullName = 'Full name is required'
+  } else if (name.length < 2) {
     errors.fullName = 'Full name must be at least 2 characters'
-  if (!PHONE_RE.test(values.phone))
-    errors.phone = 'Phone must be a valid 10-digit number (e.g. 9876543210)'
-  if (!EMAIL_RE.test(values.email))
-    errors.email = 'Email is invalid'
-  if (!values.serviceArea.trim() || values.serviceArea.trim().length < 2)
+  } else if (name.length > 100) {
+    errors.fullName = 'Full name must not exceed 100 characters'
+  } else if (!/^[a-zA-Z\s.'-]+$/.test(name)) {
+    errors.fullName = 'Full name can only contain letters, spaces, dots, and hyphens'
+  }
+
+  // 2. Phone Validation
+  const rawPhone = values.phone.trim()
+  const cleanPhone = rawPhone.replace(/[\s-]/g, '')
+  if (!rawPhone) {
+    errors.phone = 'Phone number is required'
+  } else if (/[a-zA-Z]/.test(rawPhone)) {
+    errors.phone = 'Phone number cannot contain letters'
+  } else if (!/^\+?[0-9]{10,15}$/.test(cleanPhone)) {
+    errors.phone = 'Phone must be a valid 10-digit number (e.g. 7989087190)'
+  }
+
+  // 3. Email Validation
+  const email = values.email.trim()
+  if (!email) {
+    errors.email = 'Email address is required'
+  } else if (!EMAIL_RE.test(email)) {
+    errors.email = 'Please enter a valid email address (e.g. name@example.com)'
+  } else if (email.length > 255) {
+    errors.email = 'Email must not exceed 255 characters'
+  }
+
+  // 4. Service Area Validation
+  const area = values.serviceArea.trim()
+  if (!area) {
+    errors.serviceArea = 'Service area is required'
+  } else if (area.length < 2) {
     errors.serviceArea = 'Service area must be at least 2 characters'
+  } else if (area.length > 100) {
+    errors.serviceArea = 'Service area must not exceed 100 characters'
+  }
+
   return errors
 }
 
@@ -88,7 +123,15 @@ export function AgentFormModal({ agent, onSave, onClose, loading }: Props) {
     const errs = validate(values)
     setErrors(errs)
     if (Object.keys(errs).length > 0) return
-    await onSave(values)
+
+    const cleanPhone = values.phone.trim().replace(/[\s-]/g, '')
+    await onSave({
+      fullName: values.fullName.trim(),
+      phone: cleanPhone,
+      email: values.email.trim().toLowerCase(),
+      serviceArea: values.serviceArea.trim(),
+      status: values.status,
+    })
   }
 
   const title = isEdit ? 'Edit Agent' : 'New Agent'

@@ -9,8 +9,8 @@ export const createAgentSchema = z.object({
   phone: z
     .string()
     .regex(
-      /^\+?[1-9]\d{7,14}$/,
-      "Phone must be a valid international number (e.g. +911234567890)"
+      /^\+?[0-9]{10,15}$/,
+      "Phone must be a valid phone number (10 to 15 digits)"
     ),
   email: z
     .string()

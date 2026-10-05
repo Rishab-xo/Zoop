@@ -148,6 +148,34 @@ a {
   gap: 12px;
 }
 
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 99px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--success);
+  letter-spacing: 0.03em;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--success);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--success);
+  animation: pulseDot 2s infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
 /* ─── Main Content Container ───────────────────────────────────────────────── */
 .main-content {
   flex: 1;

@@ -220,13 +220,9 @@ export default function App() {
           </div>
         </div>
         <div className="topbar-right">
-          <button
-            id="create-agent-btn"
-            className="btn btn-primary"
-            onClick={() => setModal({ type: 'create' })}
-          >
-            + New Agent
-          </button>
+          <span className="live-badge">
+            <span className="live-dot" /> System Active
+          </span>
         </div>
       </header>
 
@@ -237,7 +233,7 @@ export default function App() {
             <p>Manage and monitor your delivery personnel across active service areas</p>
           </div>
           <button
-            id="page-create-agent-btn"
+            id="create-agent-btn"
             className="btn btn-primary page-action-btn"
             onClick={() => setModal({ type: 'create' })}
           >
