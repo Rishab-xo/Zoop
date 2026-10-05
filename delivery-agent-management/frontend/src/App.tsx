@@ -338,8 +338,8 @@ export default function App() {
         <div className="topbar-brand">
           <div className="topbar-logo">🚴</div>
           <div>
-            <div className="topbar-title">Zoop · DeliveryOps</div>
-            <div className="topbar-subtitle">Agent Management</div>
+            <div className="topbar-title">Zoop</div>
+            <div className="topbar-subtitle">Delivery Agent Management</div>
           </div>
         </div>
       </header>
