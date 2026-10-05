@@ -31,7 +31,7 @@ function validate(values: FormValues): FormErrors {
   if (!values.fullName.trim() || values.fullName.trim().length < 2)
     errors.fullName = 'Full name must be at least 2 characters'
   if (!PHONE_RE.test(values.phone))
-    errors.phone = 'Phone must be a valid international number (e.g. +911234567890)'
+    errors.phone = 'Phone must be a valid 10-digit number (e.g. 9876543210)'
   if (!EMAIL_RE.test(values.email))
     errors.email = 'Email is invalid'
   if (!values.serviceArea.trim() || values.serviceArea.trim().length < 2)
@@ -129,7 +129,7 @@ export function AgentFormModal({ agent, onSave, onClose, loading }: Props) {
                   id="agent-phone"
                   className={`form-input ${errors.phone && touched.phone ? 'input-error' : ''}`}
                   type="tel"
-                  placeholder="+911234567890"
+                  placeholder="9876543210"
                   value={values.phone}
                   onChange={e => set('phone', e.target.value)}
                   onBlur={() => blur('phone')}

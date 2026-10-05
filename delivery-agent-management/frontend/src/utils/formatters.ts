@@ -3,40 +3,28 @@
  */
 
 /**
- * Formats a raw phone number into a clean, human-readable format.
+ * Formats a raw phone number into a clean 10-digit format without +91 / 91 prefix.
  * Examples:
- *   "+911234567899" -> "+91 12345 67899"
- *   "7989087190"    -> "+91 79890 87190"
- *   "+11234567890"  -> "+1 (123) 456-7890"
+ *   "+911234567899" -> "12345 67899"
+ *   "7989087190"    -> "79890 87190"
+ *   "919876543210"  -> "98765 43210"
  */
 export function formatPhoneNumber(phone: string): string {
   if (!phone) return ''
-  const trimmed = phone.trim()
+  let trimmed = phone.trim()
 
-  // Standard Indian with country code: +91XXXXXXXXXX
+  // Strip leading +91 or 91 if followed by 10 digits
   if (/^\+91\d{10}$/.test(trimmed)) {
-    return `+91 ${trimmed.slice(3, 8)} ${trimmed.slice(8)}`
+    trimmed = trimmed.slice(3)
+  } else if (/^91\d{10}$/.test(trimmed)) {
+    trimmed = trimmed.slice(2)
+  } else if (/^0\d{10}$/.test(trimmed)) {
+    trimmed = trimmed.slice(1)
   }
 
-  // 10-digit Indian number without country code
+  // 10 digits: format as clean 5-5 split (e.g. 79890 87190)
   if (/^\d{10}$/.test(trimmed)) {
-    return `+91 ${trimmed.slice(0, 5)} ${trimmed.slice(5)}`
-  }
-
-  // 11-digit starting with 0
-  if (/^0\d{10}$/.test(trimmed)) {
-    return `+91 ${trimmed.slice(1, 6)} ${trimmed.slice(6)}`
-  }
-
-  // North America: +1XXXXXXXXXX
-  if (/^\+1\d{10}$/.test(trimmed)) {
-    return `+1 (${trimmed.slice(2, 5)}) ${trimmed.slice(5, 8)}-${trimmed.slice(8)}`
-  }
-
-  // Generic international with 10-12 digits
-  const genericMatch = trimmed.match(/^(\+\d{1,3})(\d{3,5})(\d{4,5})$/)
-  if (genericMatch) {
-    return `${genericMatch[1]} ${genericMatch[2]} ${genericMatch[3]}`
+    return `${trimmed.slice(0, 5)} ${trimmed.slice(5)}`
   }
 
   return trimmed
