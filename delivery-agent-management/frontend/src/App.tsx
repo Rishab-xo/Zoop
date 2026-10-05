@@ -5,6 +5,7 @@ import { AgentFormModal } from './components/AgentFormModal'
 import { AgentDetailModal } from './components/AgentDetailModal'
 import { DeleteConfirmModal } from './components/DeleteConfirmModal'
 import { ToastContainer, toast } from './components/Toast'
+import { formatPhoneNumber, formatDate } from './utils/formatters'
 import './index.css'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -96,6 +97,7 @@ export default function App() {
   const [agents, setAgents] = useState<Agent[]>([])
   const [meta, setMeta] = useState({ total: 0, page: 1, limit: 10, totalPages: 0 })
   const [filters, setFilters] = useState<AgentFilters>({ page: 1, limit: 10, status: '', q: '' })
+  const [searchInput, setSearchInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -232,29 +234,36 @@ export default function App() {
         <div className="page-header">
           <div>
             <h1>Delivery Agents</h1>
-            <p>Manage your field delivery network across service areas</p>
+            <p>Manage and monitor your delivery personnel across active service areas</p>
           </div>
+          <button
+            id="page-create-agent-btn"
+            className="btn btn-primary page-action-btn"
+            onClick={() => setModal({ type: 'create' })}
+          >
+            <span>+</span> New Agent
+          </button>
         </div>
 
         {/* ── Stats ── */}
         <div className="stats-bar">
           <div className="stat-card">
-            <div className="stat-value" style={{ color: 'var(--accent)' }}>{stats.total}</div>
+            <div className="stat-value" style={{ color: 'var(--accent)' }}>{stats.total.toLocaleString()}</div>
             <div className="stat-label">Total Agents</div>
           </div>
           <div className="stat-card">
-            <div className="stat-value" style={{ color: 'var(--success)' }}>{stats.active}</div>
-            <div className="stat-label">Active</div>
+            <div className="stat-value" style={{ color: 'var(--success)' }}>{stats.active.toLocaleString()}</div>
+            <div className="stat-label">Active Agents</div>
           </div>
           <div className="stat-card">
-            <div className="stat-value" style={{ color: '#94a3b8' }}>{stats.inactive}</div>
-            <div className="stat-label">Inactive</div>
+            <div className="stat-value" style={{ color: '#94a3b8' }}>{stats.inactive.toLocaleString()}</div>
+            <div className="stat-label">Inactive Agents</div>
           </div>
           <div className="stat-card">
             <div className="stat-value" style={{ color: 'var(--warning)' }}>
               {stats.total ? Math.round((stats.active / stats.total) * 100) : 0}%
             </div>
-            <div className="stat-label">Active Rate</div>
+            <div className="stat-label">Active Ratio</div>
           </div>
         </div>
 
@@ -266,53 +275,59 @@ export default function App() {
             </svg>
             <input
               id="search-input"
-              type="search"
-              placeholder="Search by name or area…"
-              defaultValue={filters.q}
-              onChange={e => handleSearch(e.target.value)}
+              type="text"
+              placeholder="Search by name, area or phone…"
+              value={searchInput}
+              onChange={e => {
+                setSearchInput(e.target.value)
+                handleSearch(e.target.value)
+              }}
             />
+            {searchInput && (
+              <button
+                className="search-clear-btn"
+                type="button"
+                onClick={() => {
+                  setSearchInput('')
+                  handleSearch('')
+                }}
+                title="Clear search"
+                aria-label="Clear search"
+              >✕</button>
+            )}
           </div>
 
-          <select
-            id="status-filter"
-            className="filter-select"
-            value={filters.status}
-            onChange={e => handleStatusFilter(e.target.value)}
-          >
-            <option value="">All Statuses</option>
-            <option value="ACTIVE">Active</option>
-            <option value="INACTIVE">Inactive</option>
-          </select>
+          <div className="toolbar-filters">
+            <select
+              id="status-filter"
+              className="filter-select"
+              value={filters.status}
+              onChange={e => handleStatusFilter(e.target.value)}
+            >
+              <option value="">All Statuses</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
 
-          <select
-            id="limit-select"
-            className="filter-select"
-            value={filters.limit}
-            onChange={e => setFilters(prev => ({ ...prev, limit: +e.target.value, page: 1 }))}
-          >
-            <option value="10">10 / page</option>
-            <option value="25">25 / page</option>
-            <option value="50">50 / page</option>
-          </select>
+            <select
+              id="limit-select"
+              className="filter-select"
+              value={filters.limit}
+              onChange={e => setFilters(prev => ({ ...prev, limit: +e.target.value, page: 1 }))}
+            >
+              <option value="10">10 / page</option>
+              <option value="25">25 / page</option>
+              <option value="50">50 / page</option>
+            </select>
+          </div>
         </div>
 
         {/* ── Error State ── */}
         {error && (
-          <div style={{
-            background: 'var(--danger-bg)',
-            border: '1px solid rgba(239,68,68,0.3)',
-            borderRadius: 'var(--radius-md)',
-            padding: '14px 18px',
-            color: 'var(--danger)',
-            marginBottom: 20,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-          }}>
-            ⚠ {error}
+          <div className="error-alert">
+            <span>⚠ {error}</span>
             <button
               className="btn btn-ghost btn-sm"
-              style={{ marginLeft: 'auto' }}
               onClick={() => fetchAgents(filters)}
             >Retry</button>
           </div>
@@ -320,92 +335,98 @@ export default function App() {
 
         {/* ── Table ── */}
         <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Agent</th>
-                <th>Phone</th>
-                <th>Service Area</th>
-                <th>Status</th>
-                <th>Created</th>
-                <th style={{ width: 100 }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <SkeletonRows count={filters.limit ?? 10} />
-              ) : agents.length === 0 ? (
+          <div className="table-responsive">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan={6}>
-                    <div className="empty-state">
-                      <div className="empty-state-icon">🚴</div>
-                      <h3>No agents found</h3>
-                      <p>
-                        {filters.q || filters.status
-                          ? 'Try adjusting your filters'
-                          : 'Create your first delivery agent to get started'}
-                      </p>
-                    </div>
-                  </td>
+                  <th>Agent</th>
+                  <th>Phone</th>
+                  <th>Service Area</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
-              ) : (
-                agents.map(agent => (
-                  <tr key={agent.id}>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{
-                          width: 34, height: 34, borderRadius: '50%',
-                          background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '0.9rem', fontWeight: 700, flexShrink: 0,
-                        }}>
-                          {agent.fullName[0]}
-                        </div>
-                        <div>
-                          <div className="agent-name">{agent.fullName}</div>
-                          <div className="agent-email">{agent.email}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="agent-phone">{agent.phone}</td>
-                    <td>
-                      <span className="area-tag">{agent.serviceArea}</span>
-                    </td>
-                    <td>
-                      <span className={`badge ${agent.status === 'ACTIVE' ? 'badge-active' : 'badge-inactive'}`}>
-                        {agent.status}
-                      </span>
-                    </td>
-                    <td style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
-                      {new Date(agent.createdAt).toLocaleDateString()}
-                    </td>
-                    <td>
-                      <div className="row-actions">
-                        <button
-                          className="btn btn-ghost btn-icon btn-sm"
-                          title="View details"
-                          aria-label={`View ${agent.fullName}`}
-                          onClick={() => setModal({ type: 'detail', agent })}
-                        >👁</button>
-                        <button
-                          className="btn btn-ghost btn-icon btn-sm"
-                          title="Edit agent"
-                          aria-label={`Edit ${agent.fullName}`}
-                          onClick={() => setModal({ type: 'edit', agent })}
-                        >✎</button>
-                        <button
-                          className="btn btn-danger btn-icon btn-sm"
-                          title="Delete agent"
-                          aria-label={`Delete ${agent.fullName}`}
-                          onClick={() => setModal({ type: 'delete', agent })}
-                        >✕</button>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <SkeletonRows count={filters.limit ?? 10} />
+                ) : agents.length === 0 ? (
+                  <tr>
+                    <td colSpan={6}>
+                      <div className="empty-state">
+                        <div className="empty-state-icon">🚴</div>
+                        <h3>No agents found</h3>
+                        <p>
+                          {filters.q || filters.status
+                            ? 'Try adjusting your search or filters'
+                            : 'Create your first delivery agent to get started'}
+                        </p>
                       </div>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  agents.map(agent => (
+                    <tr key={agent.id}>
+                      <td>
+                        <div className="agent-cell">
+                          <div className="agent-avatar">
+                            {agent.fullName[0]?.toUpperCase() || 'A'}
+                          </div>
+                          <div className="agent-info">
+                            <div className="agent-name">{agent.fullName}</div>
+                            <div className="agent-email">{agent.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="agent-phone">
+                        <a
+                          href={`tel:${agent.phone}`}
+                          className="phone-link"
+                          title={`Call ${formatPhoneNumber(agent.phone)}`}
+                        >
+                          <span className="phone-icon">📞</span>
+                          <span>{formatPhoneNumber(agent.phone)}</span>
+                        </a>
+                      </td>
+                      <td>
+                        <span className="area-tag">{agent.serviceArea}</span>
+                      </td>
+                      <td>
+                        <span className={`badge ${agent.status === 'ACTIVE' ? 'badge-active' : 'badge-inactive'}`}>
+                          {agent.status}
+                        </span>
+                      </td>
+                      <td className="agent-date">
+                        {formatDate(agent.createdAt)}
+                      </td>
+                      <td>
+                        <div className="row-actions">
+                          <button
+                            className="btn btn-ghost btn-icon btn-sm"
+                            title="View details"
+                            aria-label={`View ${agent.fullName}`}
+                            onClick={() => setModal({ type: 'detail', agent })}
+                          >👁</button>
+                          <button
+                            className="btn btn-ghost btn-icon btn-sm"
+                            title="Edit agent"
+                            aria-label={`Edit ${agent.fullName}`}
+                            onClick={() => setModal({ type: 'edit', agent })}
+                          >✎</button>
+                          <button
+                            className="btn btn-danger btn-icon btn-sm"
+                            title="Delete agent"
+                            aria-label={`Delete ${agent.fullName}`}
+                            onClick={() => setModal({ type: 'delete', agent })}
+                          >✕</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
 
           {/* Pagination */}
           {!loading && meta.totalPages > 0 && (

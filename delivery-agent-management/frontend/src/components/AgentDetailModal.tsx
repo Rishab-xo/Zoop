@@ -1,4 +1,5 @@
 import type { Agent } from '../api/agents'
+import { formatPhoneNumber, formatDateTime } from '../utils/formatters'
 
 interface Props {
   agent: Agent | null
@@ -9,8 +10,8 @@ interface Props {
 export function AgentDetailModal({ agent, onClose, onEdit }: Props) {
   if (!agent) return null
 
-  const created = new Date(agent.createdAt).toLocaleString()
-  const updated = new Date(agent.updatedAt).toLocaleString()
+  const created = formatDateTime(agent.createdAt)
+  const updated = formatDateTime(agent.updatedAt)
 
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
@@ -45,7 +46,11 @@ export function AgentDetailModal({ agent, onClose, onEdit }: Props) {
           <div className="detail-grid">
             <div className="detail-item">
               <label>Phone</label>
-              <div className="value">{agent.phone}</div>
+              <div className="value phone-value">
+                <a href={`tel:${agent.phone}`} className="phone-link">
+                  📞 {formatPhoneNumber(agent.phone)}
+                </a>
+              </div>
             </div>
             <div className="detail-item">
               <label>Service Area</label>

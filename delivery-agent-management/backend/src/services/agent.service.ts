@@ -49,6 +49,8 @@ export async function listAgents(
     where.OR = [
       { fullName: { contains: q, mode: "insensitive" } },
       { serviceArea: { contains: q, mode: "insensitive" } },
+      { email: { contains: q, mode: "insensitive" } },
+      { phone: { contains: q, mode: "insensitive" } },
     ];
   }
 
