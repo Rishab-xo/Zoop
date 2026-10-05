@@ -16,7 +16,18 @@ app.use(
 );
 app.use(express.json());
 
-// ── Health ────────────────────────────────────────────────────────────────────
+// ── Root & Health ─────────────────────────────────────────────────────────────
+app.get("/", (_req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "Delivery Agent Management API is running",
+    endpoints: {
+      health: "/health",
+      agents: "/api/agents",
+    },
+  });
+});
+
 app.get("/health", (_req, res) => {
   res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
 });
