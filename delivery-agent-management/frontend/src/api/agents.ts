@@ -74,7 +74,14 @@ export const agentApi = {
 
 export function extractErrorMessage(err: unknown): string {
   if (axios.isAxiosError(err)) {
-    return err.response?.data?.error?.message ?? err.message
+    const data = err.response?.data
+    if (err.response?.status === 409) {
+      return data?.error?.message || 'Email already exists'
+    }
+    if (err.code === 'ERR_NETWORK') {
+      return 'Network error: Cannot reach the backend server. Please check your connection.'
+    }
+    return data?.error?.message || err.message || 'An unexpected error occurred'
   }
   return 'An unexpected error occurred'
 }

@@ -47,8 +47,8 @@ export function AgentDetailModal({ agent, onClose, onEdit }: Props) {
             <div className="detail-item">
               <label>Phone</label>
               <div className="value phone-value">
-                <a href={`tel:${agent.phone}`} className="phone-link">
-                  📞 {formatPhoneNumber(agent.phone)}
+                <a href={`tel:${agent.phone}`} className="agent-phone-text" title={`Call ${formatPhoneNumber(agent.phone)}`}>
+                  {formatPhoneNumber(agent.phone)}
                 </a>
               </div>
             </div>

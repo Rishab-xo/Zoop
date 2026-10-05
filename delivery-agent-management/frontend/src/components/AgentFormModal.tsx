@@ -40,15 +40,22 @@ function validate(values: FormValues): FormErrors {
     errors.fullName = 'Full name can only contain letters, spaces, dots, and hyphens'
   }
 
-  // 2. Phone Validation
+  // 2. Phone Validation: Format phone numbers with country code (+91 73783 03302) & validate for 10 digits
   const rawPhone = values.phone.trim()
-  const cleanPhone = rawPhone.replace(/[\s-]/g, '')
   if (!rawPhone) {
     errors.phone = 'Phone number is required'
   } else if (/[a-zA-Z]/.test(rawPhone)) {
     errors.phone = 'Phone number cannot contain letters'
-  } else if (!/^\+?[0-9]{10,15}$/.test(cleanPhone)) {
-    errors.phone = 'Phone must be a valid 10-digit number (e.g. 7989087190)'
+  } else {
+    let digits = rawPhone.replace(/\D/g, '')
+    if (digits.startsWith('91') && digits.length === 12) {
+      digits = digits.slice(2)
+    } else if (digits.startsWith('0') && digits.length === 11) {
+      digits = digits.slice(1)
+    }
+    if (digits.length !== 10) {
+      errors.phone = 'Phone must be a valid 10-digit number (e.g. +91 73783 03302)'
+    }
   }
 
   // 3. Email Validation
@@ -124,10 +131,14 @@ export function AgentFormModal({ agent, onSave, onClose, loading }: Props) {
     setErrors(errs)
     if (Object.keys(errs).length > 0) return
 
-    const cleanPhone = values.phone.trim().replace(/[\s-]/g, '')
+    let digits = values.phone.trim().replace(/\D/g, '')
+    if (digits.startsWith('91') && digits.length === 12) digits = digits.slice(2)
+    else if (digits.startsWith('0') && digits.length === 11) digits = digits.slice(1)
+    const formattedPhone = `+91${digits}`
+
     await onSave({
       fullName: values.fullName.trim(),
-      phone: cleanPhone,
+      phone: formattedPhone,
       email: values.email.trim().toLowerCase(),
       serviceArea: values.serviceArea.trim(),
       status: values.status,
@@ -172,7 +183,7 @@ export function AgentFormModal({ agent, onSave, onClose, loading }: Props) {
                   id="agent-phone"
                   className={`form-input ${errors.phone && touched.phone ? 'input-error' : ''}`}
                   type="tel"
-                  placeholder="9876543210"
+                  placeholder="+91 73783 03302"
                   value={values.phone}
                   onChange={e => set('phone', e.target.value)}
                   onBlur={() => blur('phone')}

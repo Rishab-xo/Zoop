@@ -3,31 +3,37 @@
  */
 
 /**
- * Formats a raw phone number into a clean 10-digit format without +91 / 91 prefix.
+ * Formats a phone number with country code: "+91 73783 03302".
+ * Strips any redundant leading prefixes and splits into a clean 5-5 digit format.
  * Examples:
- *   "+911234567899" -> "12345 67899"
- *   "7989087190"    -> "79890 87190"
- *   "919876543210"  -> "98765 43210"
+ *   "7378303302"    -> "+91 73783 03302"
+ *   "+911234567899" -> "+91 12345 67899"
+ *   "919876543210"  -> "+91 98765 43210"
  */
 export function formatPhoneNumber(phone: string): string {
   if (!phone) return ''
-  let trimmed = phone.trim()
+  let cleaned = phone.trim().replace(/[^\d+]/g, '')
 
-  // Strip leading +91 or 91 if followed by 10 digits
-  if (/^\+91\d{10}$/.test(trimmed)) {
-    trimmed = trimmed.slice(3)
-  } else if (/^91\d{10}$/.test(trimmed)) {
-    trimmed = trimmed.slice(2)
-  } else if (/^0\d{10}$/.test(trimmed)) {
-    trimmed = trimmed.slice(1)
+  // Normalize leading country prefixes
+  if (cleaned.startsWith('+91') && cleaned.length === 13) {
+    cleaned = cleaned.slice(3)
+  } else if (cleaned.startsWith('91') && cleaned.length === 12) {
+    cleaned = cleaned.slice(2)
+  } else if (cleaned.startsWith('0') && cleaned.length === 11) {
+    cleaned = cleaned.slice(1)
+  } else if (cleaned.startsWith('+') && cleaned.length > 10) {
+    cleaned = cleaned.slice(1)
+    if (cleaned.startsWith('91') && cleaned.length === 12) {
+      cleaned = cleaned.slice(2)
+    }
   }
 
-  // 10 digits: format as clean 5-5 split (e.g. 79890 87190)
-  if (/^\d{10}$/.test(trimmed)) {
-    return `${trimmed.slice(0, 5)} ${trimmed.slice(5)}`
+  // 10 digits: format as "+91 73783 03302"
+  if (/^\d{10}$/.test(cleaned)) {
+    return `+91 ${cleaned.slice(0, 5)} ${cleaned.slice(5)}`
   }
 
-  return trimmed
+  return phone.trim()
 }
 
 /**

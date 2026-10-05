@@ -23,11 +23,34 @@ function SkeletonRows({ count = 5 }: { count?: number }) {
     <>
       {Array.from({ length: count }).map((_, i) => (
         <tr key={i} className="skeleton-row">
-          {[60, 120, 80, 100, 70, 80].map((w, j) => (
-            <td key={j}>
-              <div className="skeleton" style={{ width: w, height: 14 }} />
-            </td>
-          ))}
+          <td>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div className="skeleton skeleton-avatar" />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div className="skeleton" style={{ width: 120, height: 14 }} />
+                <div className="skeleton" style={{ width: 160, height: 11 }} />
+              </div>
+            </div>
+          </td>
+          <td>
+            <div className="skeleton" style={{ width: 130, height: 14 }} />
+          </td>
+          <td>
+            <div className="skeleton" style={{ width: 110, height: 24, borderRadius: 99 }} />
+          </td>
+          <td>
+            <div className="skeleton" style={{ width: 75, height: 24, borderRadius: 99 }} />
+          </td>
+          <td>
+            <div className="skeleton" style={{ width: 85, height: 13 }} />
+          </td>
+          <td style={{ textAlign: 'right' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6 }}>
+              <div className="skeleton" style={{ width: 32, height: 32, borderRadius: 8 }} />
+              <div className="skeleton" style={{ width: 32, height: 32, borderRadius: 8 }} />
+              <div className="skeleton" style={{ width: 32, height: 32, borderRadius: 8 }} />
+            </div>
+          </td>
         </tr>
       ))}
     </>
@@ -45,47 +68,49 @@ function Pagination({
   limit: number
   onPage: (p: number) => void
 }) {
-  const start = (page - 1) * limit + 1
+  const start = total === 0 ? 0 : (page - 1) * limit + 1
   const end = Math.min(page * limit, total)
 
   const pages: (number | '…')[] = []
-  if (totalPages <= 7) {
-    for (let i = 1; i <= totalPages; i++) pages.push(i)
+  const safeTotalPages = Math.max(1, totalPages)
+  if (safeTotalPages <= 7) {
+    for (let i = 1; i <= safeTotalPages; i++) pages.push(i)
   } else {
     pages.push(1)
     if (page > 3) pages.push('…')
-    for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) pages.push(i)
-    if (page < totalPages - 2) pages.push('…')
-    pages.push(totalPages)
+    for (let i = Math.max(2, page - 1); i <= Math.min(safeTotalPages - 1, page + 1); i++) pages.push(i)
+    if (page < safeTotalPages - 2) pages.push('…')
+    pages.push(safeTotalPages)
   }
 
   return (
     <div className="pagination">
       <span className="pagination-info">
-        {total === 0 ? 'No results' : `Showing ${start}–${end} of ${total} agents`}
+        {total === 0 ? 'No agents found' : `Showing ${start}-${end} of ${total}`}
       </span>
       <div className="pagination-controls">
         <button
-          className="page-btn"
+          className="page-btn page-btn-prev"
           onClick={() => onPage(page - 1)}
-          disabled={page === 1}
+          disabled={page <= 1}
           aria-label="Previous page"
-        >‹</button>
+        >‹ Prev</button>
         {pages.map((p, i) =>
           p === '…'
-            ? <span key={`ellipsis-${i}`} style={{ padding: '0 4px', color: 'var(--text-muted)' }}>…</span>
+            ? <span key={`ellipsis-${i}`} className="pagination-ellipsis">…</span>
             : <button
                 key={p}
                 className={`page-btn ${page === p ? 'active' : ''}`}
                 onClick={() => onPage(p as number)}
+                aria-current={page === p ? 'page' : undefined}
               >{p}</button>
         )}
         <button
-          className="page-btn"
+          className="page-btn page-btn-next"
           onClick={() => onPage(page + 1)}
-          disabled={page >= totalPages}
+          disabled={page >= safeTotalPages || safeTotalPages <= 1}
           aria-label="Next page"
-        >›</button>
+        >Next ›</button>
       </div>
     </div>
   )
@@ -243,23 +268,48 @@ export default function App() {
 
         {/* ── Stats ── */}
         <div className="stats-bar">
-          <div className="stat-card">
+          <div
+            className={`stat-card stat-card-clickable ${filters.status === '' ? 'stat-active-all' : ''}`}
+            onClick={() => handleStatusFilter('')}
+            role="button"
+            tabIndex={0}
+            onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && handleStatusFilter('')}
+            title="Filter table: All Agents"
+          >
             <div className="stat-value" style={{ color: 'var(--accent)' }}>{stats.total.toLocaleString()}</div>
             <div className="stat-label">Total Agents</div>
+            <div className="stat-hint">{filters.status === '' ? '● Showing All' : 'Click to show all'}</div>
           </div>
-          <div className="stat-card">
+          <div
+            className={`stat-card stat-card-clickable ${filters.status === 'ACTIVE' ? 'stat-active-active' : ''}`}
+            onClick={() => handleStatusFilter('ACTIVE')}
+            role="button"
+            tabIndex={0}
+            onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && handleStatusFilter('ACTIVE')}
+            title="Filter table: Active Agents only"
+          >
             <div className="stat-value" style={{ color: 'var(--success)' }}>{stats.active.toLocaleString()}</div>
             <div className="stat-label">Active Agents</div>
+            <div className="stat-hint">{filters.status === 'ACTIVE' ? '● Filtered Active' : 'Click to filter'}</div>
           </div>
-          <div className="stat-card">
-            <div className="stat-value" style={{ color: '#94a3b8' }}>{stats.inactive.toLocaleString()}</div>
+          <div
+            className={`stat-card stat-card-clickable ${filters.status === 'INACTIVE' ? 'stat-active-inactive' : ''}`}
+            onClick={() => handleStatusFilter('INACTIVE')}
+            role="button"
+            tabIndex={0}
+            onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && handleStatusFilter('INACTIVE')}
+            title="Filter table: Inactive Agents only"
+          >
+            <div className="stat-value" style={{ color: '#cbd5e1' }}>{stats.inactive.toLocaleString()}</div>
             <div className="stat-label">Inactive Agents</div>
+            <div className="stat-hint">{filters.status === 'INACTIVE' ? '● Filtered Inactive' : 'Click to filter'}</div>
           </div>
           <div className="stat-card">
             <div className="stat-value" style={{ color: 'var(--warning)' }}>
               {stats.total ? Math.round((stats.active / stats.total) * 100) : 0}%
             </div>
             <div className="stat-label">Active Ratio</div>
+            <div className="stat-hint">Fleet operational</div>
           </div>
         </div>
 
@@ -321,10 +371,19 @@ export default function App() {
         {/* ── Error State ── */}
         {error && (
           <div className="error-alert">
-            <span>⚠ {error}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ fontSize: '1.25rem' }}>⚠️</span>
+              <div>
+                <div style={{ fontWeight: 600, color: '#fecdd3' }}>Failed to load delivery agents</div>
+                <div style={{ fontSize: '0.84rem', color: '#fda4af', marginTop: 2 }}>{error}</div>
+              </div>
+            </div>
             <button
               className="btn btn-ghost btn-sm"
-              onClick={() => fetchAgents(filters)}
+              onClick={() => {
+                fetchAgents(filters)
+                fetchStats()
+              }}
             >Retry</button>
           </div>
         )}
@@ -350,13 +409,21 @@ export default function App() {
                   <tr>
                     <td colSpan={6}>
                       <div className="empty-state">
-                        <div className="empty-state-icon">🚴</div>
+                        <div className="empty-state-icon">🔍</div>
                         <h3>No agents found</h3>
-                        <p>
-                          {filters.q || filters.status
-                            ? 'Try adjusting your search or filters'
-                            : 'Create your first delivery agent to get started'}
-                        </p>
+                        <p>No agents found. Try a different search or clear your filters.</p>
+                        {(filters.q || filters.status) && (
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            style={{ marginTop: 14 }}
+                            onClick={() => {
+                              setSearchInput('')
+                              setFilters(prev => ({ ...prev, q: '', status: '', page: 1 }))
+                            }}
+                          >
+                            Clear search & filters
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -377,11 +444,10 @@ export default function App() {
                       <td className="agent-phone">
                         <a
                           href={`tel:${agent.phone}`}
-                          className="phone-link"
+                          className="agent-phone-clean"
                           title={`Call ${formatPhoneNumber(agent.phone)}`}
                         >
-                          <span className="phone-icon">📞</span>
-                          <span>{formatPhoneNumber(agent.phone)}</span>
+                          {formatPhoneNumber(agent.phone)}
                         </a>
                       </td>
                       <td>
@@ -398,23 +464,39 @@ export default function App() {
                       <td>
                         <div className="row-actions">
                           <button
-                            className="btn btn-ghost btn-icon btn-sm"
+                            className="btn-action btn-action-view"
                             title="View details"
                             aria-label={`View ${agent.fullName}`}
                             onClick={() => setModal({ type: 'detail', agent })}
-                          >👁</button>
+                          >
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                          </button>
                           <button
-                            className="btn btn-ghost btn-icon btn-sm"
+                            className="btn-action btn-action-edit"
                             title="Edit agent"
                             aria-label={`Edit ${agent.fullName}`}
                             onClick={() => setModal({ type: 'edit', agent })}
-                          >✎</button>
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                              <path d="m15 5 4 4" />
+                            </svg>
+                          </button>
                           <button
-                            className="btn btn-danger btn-icon btn-sm"
+                            className="btn-action btn-action-delete"
                             title="Delete agent"
                             aria-label={`Delete ${agent.fullName}`}
                             onClick={() => setModal({ type: 'delete', agent })}
-                          >✕</button>
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M3 6h18" />
+                              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                            </svg>
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -425,10 +507,10 @@ export default function App() {
           </div>
 
           {/* Pagination */}
-          {!loading && meta.totalPages > 0 && (
+          {!loading && meta.total > 0 && (
             <Pagination
               page={meta.page}
-              totalPages={meta.totalPages}
+              totalPages={meta.totalPages || 1}
               total={meta.total}
               limit={meta.limit}
               onPage={handlePage}

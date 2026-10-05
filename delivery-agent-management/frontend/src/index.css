@@ -13,8 +13,8 @@
   --border-focus:   rgba(99, 102, 241, 0.7);
 
   --text-primary:   #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted:     #64748b;
+  --text-secondary: #cbd5e1;
+  --text-muted:     #94a3b8;
 
   --accent:         #6366f1;
   --accent-hover:   #4f46e5;
@@ -47,6 +47,12 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+/* Focus Ring for Keyboard Users (WCAG Compliant) */
+:focus-visible {
+  outline: 2px solid var(--accent) !important;
+  outline-offset: 2px !important;
 }
 
 html {
@@ -228,16 +234,43 @@ a {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 20px 24px;
+  padding: 18px 22px;
   position: relative;
   overflow: hidden;
-  transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+  transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition), background var(--transition);
+  user-select: none;
 }
 
 .stat-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.16);
   box-shadow: var(--shadow-card);
+}
+
+.stat-card-clickable {
+  cursor: pointer;
+}
+
+.stat-card-clickable:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.stat-active-all {
+  border-color: rgba(99, 102, 241, 0.6) !important;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.14), rgba(17, 20, 30, 0.95)) !important;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25) !important;
+}
+
+.stat-active-active {
+  border-color: rgba(16, 185, 129, 0.6) !important;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.14), rgba(17, 20, 30, 0.95)) !important;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.25) !important;
+}
+
+.stat-active-inactive {
+  border-color: rgba(203, 213, 225, 0.5) !important;
+  background: linear-gradient(135deg, rgba(203, 213, 225, 0.12), rgba(17, 20, 30, 0.95)) !important;
+  box-shadow: 0 4px 20px rgba(148, 163, 184, 0.2) !important;
 }
 
 .stat-value {
@@ -256,6 +289,14 @@ a {
   letter-spacing: 0.08em;
   margin-top: 8px;
   font-weight: 600;
+}
+
+.stat-hint {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 /* ─── Toolbar ──────────────────────────────────────────────────────────────── */
@@ -462,11 +503,11 @@ thead {
 thead th {
   padding: 15px 22px;
   text-align: left;
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--text-muted);
+  color: #cbd5e1;
   white-space: nowrap;
 }
 
@@ -480,7 +521,7 @@ tbody tr:last-child {
 }
 
 tbody tr:hover {
-  background: var(--bg-card-hover);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 tbody td {
@@ -525,46 +566,40 @@ tbody td {
 }
 
 .agent-email {
-  color: var(--text-secondary);
-  font-size: 0.8rem;
+  color: #cbd5e1;
+  font-size: 0.82rem;
 }
 
-/* ─── Improved Phone Number Formatting & Styling ───────────────────────────── */
+/* ─── Clean Phone Number Display (No Button, No Phone Icon) ────────────────── */
 .agent-phone {
   white-space: nowrap;
 }
 
-.phone-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+.agent-phone-clean,
+.agent-phone-text {
+  display: inline-block;
   font-family: var(--font-mono);
-  font-size: 0.86rem;
+  font-size: 0.88rem;
   font-weight: 500;
-  color: #e2e8f0;
-  letter-spacing: 0.02em;
+  color: #f1f5f9;
+  letter-spacing: 0.03em;
   font-variant-numeric: tabular-nums;
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
   transition: all var(--transition);
+  text-decoration: none;
 }
 
-.phone-link:hover {
+.agent-phone-clean:hover,
+.agent-phone-text:hover {
+  color: var(--accent);
   background: var(--accent-subtle);
-  border-color: rgba(99, 102, 241, 0.35);
-  color: #c7d2fe;
-  transform: translateY(-1px);
-}
-
-.phone-icon {
-  font-size: 0.8rem;
-  opacity: 0.75;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .agent-date {
-  color: var(--text-secondary);
+  color: #cbd5e1;
   font-size: 0.82rem;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
@@ -575,10 +610,10 @@ tbody td {
   display: inline-flex;
   align-items: center;
   padding: 4px 11px;
-  background: rgba(99, 102, 241, 0.08);
-  border: 1px solid rgba(99, 102, 241, 0.22);
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.3);
   border-radius: 99px;
-  color: #a5b4fc;
+  color: #c7d2fe;
   font-size: 0.8rem;
   font-weight: 500;
   white-space: nowrap;
@@ -616,21 +651,56 @@ tbody td {
 }
 
 .badge-inactive {
-  background: rgba(148, 163, 184, 0.1);
-  color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(203, 213, 225, 0.1);
+  color: #cbd5e1;
+  border: 1px solid rgba(203, 213, 225, 0.25);
 }
 
 .badge-inactive::before {
-  background: #94a3b8;
+  background: #cbd5e1;
 }
 
-/* ─── Row Actions ──────────────────────────────────────────────────────────── */
+/* ─── Row Actions & Less Prominent Delete ──────────────────────────────────── */
 .row-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 6px;
+}
+
+.btn-action {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: var(--text-secondary);
+  transition: all var(--transition);
+  cursor: pointer;
+}
+
+.btn-action:hover {
+  background: var(--accent-subtle);
+  border-color: rgba(99, 102, 241, 0.35);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Muted delete button: unobtrusive until hovered/focused */
+.btn-action-delete {
+  color: var(--text-muted);
+}
+
+.btn-action-delete:hover,
+.btn-action-delete:focus-visible {
+  background: var(--danger-bg) !important;
+  border-color: rgba(244, 63, 94, 0.4) !important;
+  color: var(--danger) !important;
+  transform: translateY(-1px);
 }
 
 /* ─── Pagination ───────────────────────────────────────────────────────────── */
@@ -646,8 +716,9 @@ tbody td {
 }
 
 .pagination-info {
-  font-size: 0.84rem;
-  color: var(--text-secondary);
+  font-size: 0.86rem;
+  color: #cbd5e1;
+  font-weight: 500;
 }
 
 .pagination-controls {
@@ -670,6 +741,18 @@ tbody td {
   font-size: 0.85rem;
   font-weight: 500;
   transition: all var(--transition);
+}
+
+.page-btn-prev, .page-btn-next {
+  padding: 0 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.pagination-ellipsis {
+  padding: 0 6px;
+  color: var(--text-muted);
+  user-select: none;
 }
 
 .page-btn:hover:not(:disabled) {
@@ -852,15 +935,22 @@ tbody td {
 }
 
 .empty-state p {
-  font-size: 0.88rem;
-  color: var(--text-muted);
+  font-size: 0.9rem;
+  color: #cbd5e1;
 }
 
 .skeleton {
-  background: linear-gradient(90deg, var(--bg-surface) 25%, var(--bg-card-hover) 50%, var(--bg-surface) 75%);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.11) 50%, rgba(255, 255, 255, 0.04) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: var(--radius-xs);
+}
+
+.skeleton-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50% !important;
+  flex-shrink: 0;
 }
 
 @keyframes shimmer {
@@ -869,7 +959,7 @@ tbody td {
 }
 
 .skeleton-row td {
-  padding: 18px 22px;
+  padding: 16px 22px;
 }
 
 /* ─── Toast Notifications ──────────────────────────────────────────────────── */
