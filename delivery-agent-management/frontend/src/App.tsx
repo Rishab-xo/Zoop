@@ -116,6 +116,104 @@ function Pagination({
   )
 }
 
+// ─── Custom Sleek Dropdown ───────────────────────────────────────────────────
+
+interface DropdownOption<T> {
+  value: T
+  label: string
+}
+
+function CustomDropdown<T extends string | number>({
+  id,
+  value,
+  options,
+  onChange,
+}: {
+  id?: string
+  value: T
+  options: DropdownOption<T>[]
+  onChange: (value: T) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('keydown', handleKeyDown)
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside)
+        document.removeEventListener('keydown', handleKeyDown)
+      }
+    }
+  }, [open])
+
+  const current = options.find(o => o.value === value) || options[0]
+
+  return (
+    <div className="custom-dropdown-container" ref={containerRef} id={id}>
+      <button
+        type="button"
+        className={`custom-dropdown-trigger ${open ? 'open' : ''}`}
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+      >
+        <span>{current?.label}</span>
+        <svg
+          className={`dropdown-chevron ${open ? 'rotated' : ''}`}
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="custom-dropdown-menu" role="listbox">
+          {options.map(option => {
+            const isSelected = option.value === value
+            return (
+              <button
+                key={String(option.value)}
+                type="button"
+                className={`custom-dropdown-item ${isSelected ? 'selected' : ''}`}
+                onClick={() => {
+                  onChange(option.value)
+                  setOpen(false)
+                }}
+                role="option"
+                aria-selected={isSelected}
+              >
+                <span>{option.label}</span>
+                {isSelected && (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Main App ─────────────────────────────────────────────────────────────────
 
 export default function App() {
@@ -244,11 +342,6 @@ export default function App() {
             <div className="topbar-subtitle">Agent Management</div>
           </div>
         </div>
-        <div className="topbar-right">
-          <span className="live-badge">
-            <span className="live-dot" /> System Active
-          </span>
-        </div>
       </header>
 
       <main className="main-content">
@@ -344,27 +437,27 @@ export default function App() {
           </div>
 
           <div className="toolbar-filters">
-            <select
+            <CustomDropdown
               id="status-filter"
-              className="filter-select"
-              value={filters.status}
-              onChange={e => handleStatusFilter(e.target.value)}
-            >
-              <option value="">All Statuses</option>
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
-            </select>
+              value={filters.status || ''}
+              onChange={val => handleStatusFilter(val as string)}
+              options={[
+                { value: '', label: 'All Statuses' },
+                { value: 'ACTIVE', label: 'Active' },
+                { value: 'INACTIVE', label: 'Inactive' },
+              ]}
+            />
 
-            <select
+            <CustomDropdown
               id="limit-select"
-              className="filter-select"
-              value={filters.limit}
-              onChange={e => setFilters(prev => ({ ...prev, limit: +e.target.value, page: 1 }))}
-            >
-              <option value="10">10 / page</option>
-              <option value="25">25 / page</option>
-              <option value="50">50 / page</option>
-            </select>
+              value={filters.limit || 10}
+              onChange={val => setFilters(prev => ({ ...prev, limit: val as number, page: 1 }))}
+              options={[
+                { value: 10, label: '10 / page' },
+                { value: 25, label: '25 / page' },
+                { value: 50, label: '50 / page' },
+              ]}
+            />
           </div>
         </div>
 
