@@ -1,0 +1,95 @@
+### Create Agent
+POST http://localhost:3001/api/agents
+Content-Type: application/json
+
+{
+  "fullName": "John Doe",
+  "phone": "+911234560000",
+  "email": "john.doe@example.com",
+  "serviceArea": "Bengaluru Central"
+}
+
+###
+
+### List Agents
+GET http://localhost:3001/api/agents?page=1&limit=10
+Accept: application/json
+
+###
+
+### List with status filter
+GET http://localhost:3001/api/agents?status=ACTIVE&page=1&limit=5
+Accept: application/json
+
+###
+
+### Search by name
+GET http://localhost:3001/api/agents?q=John
+Accept: application/json
+
+###
+
+### Get Single Agent (replace id below)
+GET http://localhost:3001/api/agents/REPLACE_WITH_REAL_ID
+Accept: application/json
+
+###
+
+### Update Agent (replace id below)
+PATCH http://localhost:3001/api/agents/REPLACE_WITH_REAL_ID
+Content-Type: application/json
+
+{
+  "serviceArea": "Mumbai West",
+  "status": "INACTIVE"
+}
+
+###
+
+### Delete Agent (replace id below)
+DELETE http://localhost:3001/api/agents/REPLACE_WITH_REAL_ID
+
+###
+
+### Health Check
+GET http://localhost:3001/health
+
+###
+
+### ── Error Cases ─────────────────────────────────────────────
+
+### 400 – Invalid email
+POST http://localhost:3001/api/agents
+Content-Type: application/json
+
+{
+  "fullName": "Bad Email",
+  "phone": "+919999990001",
+  "email": "not-an-email",
+  "serviceArea": "Nowhere"
+}
+
+###
+
+### 400 – Invalid UUID param
+GET http://localhost:3001/api/agents/not-a-valid-uuid
+
+###
+
+### 404 – Agent not found
+GET http://localhost:3001/api/agents/00000000-0000-0000-0000-000000000000
+
+###
+
+### 409 – Duplicate email
+POST http://localhost:3001/api/agents
+Content-Type: application/json
+
+{
+  "fullName": "Duplicate",
+  "phone": "+919999990002",
+  "email": "john.doe@example.com",
+  "serviceArea": "Anywhere"
+}
+
+###

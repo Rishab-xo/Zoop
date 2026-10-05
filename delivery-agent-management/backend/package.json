@@ -1,0 +1,49 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Delivery Agent Management System – Backend",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/server.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/server.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "db:migrate": "npx prisma@5 migrate dev",
+    "db:seed": "ts-node prisma/seed.ts",
+    "db:studio": "npx prisma@5 studio",
+    "db:generate": "npx prisma@5 generate",
+    "verify": "ts-node scripts/verify.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.5",
+    "express": "^5.2.1",
+    "ioredis": "^6.0.0",
+    "uuid": "^14.0.2",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.4",
+    "@types/supertest": "^7.2.1",
+    "@types/uuid": "^10.0.0",
+    "@vitest/coverage-v8": "^5.0.3",
+    "nodemon": "^3.1.14",
+    "prisma": "^5.22.0",
+    "supertest": "^7.3.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.3"
+  }
+}
