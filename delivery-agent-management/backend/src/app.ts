@@ -8,8 +8,8 @@ const app = express();
 // ── Middleware ────────────────────────────────────────────────────────────────
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    methods: ["GET", "POST", "PATCH", "DELETE"],
+    origin: process.env.FRONTEND_URL || true,
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     exposedHeaders: ["X-Cache"],
   })

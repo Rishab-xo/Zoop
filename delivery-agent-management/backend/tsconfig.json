@@ -14,6 +14,6 @@
     "declarationMap": true,
     "sourceMap": true
   },
-  "include": ["src/**/*", "scripts/**/*", "prisma/**/*", "tests/**/*"],
+  "include": ["src/**/*", "scripts/**/*", "prisma/**/*", "tests/**/*", "api/**/*"],
   "exclude": ["node_modules", "dist"]
 }

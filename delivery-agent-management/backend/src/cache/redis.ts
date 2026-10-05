@@ -12,6 +12,10 @@ export function getRedisClient(): Redis {
       connectTimeout: 2000,
       lazyConnect: true,
       enableOfflineQueue: false,
+      retryStrategy(times) {
+        if (times > 3) return null;
+        return Math.min(times * 200, 1000);
+      },
     });
 
     redis.on("error", (err: Error) => {
