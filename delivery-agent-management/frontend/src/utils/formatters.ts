@@ -3,18 +3,18 @@
  */
 
 /**
- * Formats a phone number with country code: "+91 73783 03302".
+ * Formats a phone number cleanly without +91 (e.g. "73783 03302").
  * Strips any redundant leading prefixes and splits into a clean 5-5 digit format.
  * Examples:
- *   "7378303302"    -> "+91 73783 03302"
- *   "+911234567899" -> "+91 12345 67899"
- *   "919876543210"  -> "+91 98765 43210"
+ *   "7378303302"    -> "73783 03302"
+ *   "+911234567899" -> "12345 67899"
+ *   "919876543210"  -> "98765 43210"
  */
 export function formatPhoneNumber(phone: string): string {
   if (!phone) return ''
   let cleaned = phone.trim().replace(/[^\d+]/g, '')
 
-  // Normalize leading country prefixes
+  // Normalize and strip leading country prefixes
   if (cleaned.startsWith('+91') && cleaned.length === 13) {
     cleaned = cleaned.slice(3)
   } else if (cleaned.startsWith('91') && cleaned.length === 12) {
@@ -28,9 +28,9 @@ export function formatPhoneNumber(phone: string): string {
     }
   }
 
-  // 10 digits: format as "+91 73783 03302"
+  // 10 digits: format as clean 5-5 split "73783 03302" without +91
   if (/^\d{10}$/.test(cleaned)) {
-    return `+91 ${cleaned.slice(0, 5)} ${cleaned.slice(5)}`
+    return `${cleaned.slice(0, 5)} ${cleaned.slice(5)}`
   }
 
   return phone.trim()

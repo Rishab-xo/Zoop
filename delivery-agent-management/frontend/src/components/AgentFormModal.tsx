@@ -40,7 +40,7 @@ function validate(values: FormValues): FormErrors {
     errors.fullName = 'Full name can only contain letters, spaces, dots, and hyphens'
   }
 
-  // 2. Phone Validation: Format phone numbers with country code (+91 73783 03302) & validate for 10 digits
+  // 2. Phone Validation: Validate for 10 digits
   const rawPhone = values.phone.trim()
   if (!rawPhone) {
     errors.phone = 'Phone number is required'
@@ -54,7 +54,7 @@ function validate(values: FormValues): FormErrors {
       digits = digits.slice(1)
     }
     if (digits.length !== 10) {
-      errors.phone = 'Phone must be a valid 10-digit number (e.g. +91 73783 03302)'
+      errors.phone = 'Phone must be a valid 10-digit number (e.g. 73783 03302)'
     }
   }
 
@@ -134,7 +134,7 @@ export function AgentFormModal({ agent, onSave, onClose, loading }: Props) {
     let digits = values.phone.trim().replace(/\D/g, '')
     if (digits.startsWith('91') && digits.length === 12) digits = digits.slice(2)
     else if (digits.startsWith('0') && digits.length === 11) digits = digits.slice(1)
-    const formattedPhone = `+91${digits}`
+    const formattedPhone = digits
 
     await onSave({
       fullName: values.fullName.trim(),
@@ -183,7 +183,7 @@ export function AgentFormModal({ agent, onSave, onClose, loading }: Props) {
                   id="agent-phone"
                   className={`form-input ${errors.phone && touched.phone ? 'input-error' : ''}`}
                   type="tel"
-                  placeholder="+91 73783 03302"
+                  placeholder="73783 03302"
                   value={values.phone}
                   onChange={e => set('phone', e.target.value)}
                   onBlur={() => blur('phone')}
