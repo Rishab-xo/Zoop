@@ -369,7 +369,7 @@ export default function App() {
             onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && handleStatusFilter('')}
             title="Filter table: All Agents"
           >
-            <div className="stat-value" style={{ color: 'var(--accent)' }}>{stats.total.toLocaleString()}</div>
+            <div className="stat-value">{stats.total.toLocaleString()}</div>
             <div className="stat-label">Total Agents</div>
             <div className="stat-hint">{filters.status === '' ? '● Showing All' : 'Click to show all'}</div>
           </div>
@@ -381,7 +381,7 @@ export default function App() {
             onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && handleStatusFilter('ACTIVE')}
             title="Filter table: Active Agents only"
           >
-            <div className="stat-value" style={{ color: 'var(--success)' }}>{stats.active.toLocaleString()}</div>
+            <div className="stat-value stat-value-active">{stats.active.toLocaleString()}</div>
             <div className="stat-label">Active Agents</div>
             <div className="stat-hint">{filters.status === 'ACTIVE' ? '● Filtered Active' : 'Click to filter'}</div>
           </div>
@@ -393,12 +393,12 @@ export default function App() {
             onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && handleStatusFilter('INACTIVE')}
             title="Filter table: Inactive Agents only"
           >
-            <div className="stat-value" style={{ color: '#cbd5e1' }}>{stats.inactive.toLocaleString()}</div>
+            <div className="stat-value stat-value-inactive">{stats.inactive.toLocaleString()}</div>
             <div className="stat-label">Inactive Agents</div>
             <div className="stat-hint">{filters.status === 'INACTIVE' ? '● Filtered Inactive' : 'Click to filter'}</div>
           </div>
           <div className="stat-card">
-            <div className="stat-value" style={{ color: 'var(--warning)' }}>
+            <div className="stat-value">
               {stats.total ? Math.round((stats.active / stats.total) * 100) : 0}%
             </div>
             <div className="stat-label">Active Ratio</div>

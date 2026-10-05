@@ -26,9 +26,12 @@ export function AgentDetailModal({ agent, onClose, onEdit }: Props) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
             <div style={{
               width: 52, height: 52, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+              background: '#1c1c20',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              color: '#ffffff',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: '1.3rem', fontWeight: 700, flexShrink: 0,
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.5)',
             }}>
               {agent.fullName[0]}
             </div>
