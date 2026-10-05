@@ -14,15 +14,19 @@ export function toast(message: string, type: 'success' | 'error' = 'success') {
 
 export function ToastContainer() {
   const [toasts, setToasts] = useState<Toast[]>([])
-  let counter = 0
 
-  addToastGlobal = (message, type) => {
-    const id = ++counter
-    setToasts(prev => [...prev, { id, message, type }])
-    setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== id))
-    }, 3500)
-  }
+  useEffect(() => {
+    addToastGlobal = (message, type) => {
+      const id = Date.now() + Math.random()
+      setToasts(prev => [...prev, { id, message, type }])
+      setTimeout(() => {
+        setToasts(prev => prev.filter(t => t.id !== id))
+      }, 3500)
+    }
+    return () => {
+      addToastGlobal = null
+    }
+  }, [])
 
   return (
     <div className="toast-container">
