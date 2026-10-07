@@ -55,7 +55,7 @@ npm install
 npm run dev                          # starts on http://localhost:5173
 ```
 
-Open **http://localhost:5173** — the frontend proxies all `/api` calls to the backend automatically.
+Open `http://localhost:5173` in your browser — the frontend proxies all `/api` calls to the backend automatically.
 
 ---
 

@@ -94,7 +94,7 @@ npm install
 npm run dev                          # Starts Vite on http://localhost:5173
 ```
 
-Open **[http://localhost:5173](http://localhost:5173)** in your browser. The Vite dev server proxies `/api` calls directly to `http://localhost:3001`.
+Open `http://localhost:5173` in your browser. The Vite dev server proxies `/api` calls directly to `http://localhost:3001`.
 
 ---
 
